@@ -23,8 +23,8 @@ getopts('f:h:p:') || exit 1;
 if (!$opt_f) {
 	die "No filename specified. Use '-f <datafile>' or --help for more information, stopped";
 }
-if  (!$opt_p) {
-	die "Nothing selected to be plotted. Use '-p <option>' or --help for more information, stopped";
+if  (!($opt_p =~ /^usedmem$|^pagefaults$|^cpupercent$|^cpuload$|^users$/)) {
+	die "Invalid plotting option. Use '-p <option>' or --help for more information, stopped";
 }
 
 open(my $data, "<", $opt_f)			#open input data file
@@ -44,8 +44,20 @@ while (my $current = <$data>) {
 		if ($current =~ /(\d\d\d\d\d\d\d\d\d+)\t$opt_h\t(\w)\t([\w\ \-]+)\t(\d+\.?\d*)\t(\d+\.?\d*)\t(\d+\.?\d*)\t(\d+\.?\d*)\t(\d+\.?\d*)\t(\d+\.?\d*)\t(\d+\.?\d*)\t(\d+\.?\d*)\t(\d+\.?\d*)\t(\d+\.?\d*)/) {
 			print $parsed $1;
 			print $parsed "\t";
-			if($opt_p eq "cpu") {
+			if($opt_p eq "usedmem") {
+				print $parsed $7;
+			}
+			if($opt_p eq "pagefaults") {
+				print $parsed $9;
+			}
+			if($opt_p eq "cpupercent") {
 				print $parsed $10;
+			}	
+			if($opt_p eq "cpuload") {
+				print $parsed $11;
+			}
+			if($opt_p eq "users") {
+				print $parsed $12;
 			}
 			print $parsed "\n";
 		}
@@ -68,9 +80,21 @@ while (my $current = <$data>) {
 			$n = 0;
 			$total = 0;
 		}
-		if ($current =~ /(\d\d\d\d\d\d\d\d\d+)\t[\w\ \.]+\t(\w)\t([\w\ \-]+)\t(\d+\.?\d*)\t(\d+\.?\d*)\t(\d+\.?\d*)\t(\d+\.?\d*)\t(\d+\.?\d*)\t(\d+\.?\d*)\t(\d+\.?\d*)\t(\d+\.?\d*)\t(\d+\.?\d*)\t(\d+\.?\d*)/) {
-			if($opt_p eq "cpu") {
+		if ($current =~ /(\d\d\d\d\d\d\d\d\d+)\t[\w\ \.]+\t(\w)\t([\w\ \-]+)\t(\d+\.?\d*)\t(\d+\.?\d*)\t(\d+\.?\d*)\t(\d+\.?\d*)\t(\d+\.?\d*)\t(\d+\.?\d*)\t(\d+\.?\d*)\t(\d+\.?\d*)\t(\d+\.?\d*)\t(\d+\.?\d*)/) {	
+			if($opt_p eq "usedmem") {
+				$total += $7;
+			}
+			if($opt_p eq "pagefaults") {
+				$total += $9;
+			}
+			if($opt_p eq "cpupercent") {
 				$total += $10;
+			}	
+			if($opt_p eq "cpuload") {
+				$total += $11;
+			}
+			if($opt_p eq "users") {
+				$total += $12;
 			}
 			$n++;
 		}
@@ -92,6 +116,6 @@ sub HELP_MESSAGE {
 	print "-f=DATAFILE	Specify labstats data file (required)\n";
 	print "-h=HOST		Specify a system (the whole hostname, 1 computer only) to plot stats from\n";
 	print "-p=OPTION	Specify what to plot (required)\n";
-	print "			Options are: cpu,\n";
+	print "			Options are: usedmem, pagefaults, cpupercent, cpuload, users\n";
 	exit(0);
 }
