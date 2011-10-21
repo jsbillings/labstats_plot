@@ -1,8 +1,8 @@
+load "labstats_labels"
 set terminal jpeg
 set output "graph.jpeg"
 set border
 set xdata time
 set timefmt "%Y%m%d%H%M%S"
 set format x "%a/%H"
-set title "Generic Title - to do"
 plot "labstats_tmp" using 1:2

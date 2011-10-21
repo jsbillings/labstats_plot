@@ -20,11 +20,22 @@ $Getopt::Std::STANDARD_HELP_VERSION = 1;
 our($opt_f,$opt_h,$opt_p);
 getopts('f:h:p:') || exit 1;
 
+open(my $labels ,">", "labstats_labels")
+	or die "cannot open temporary file: $!";
+
 if (!$opt_f) {
 	die "No filename specified. Use '-f <datafile>' or --help for more information, stopped";
 }
 if  (!($opt_p =~ /^usedmem$|^pagefaults$|^cpupercent$|^cpuload$|^users$/)) {
 	die "Invalid plotting option. Use '-p <option>' or --help for more information, stopped";
+} else {
+	print $labels "set ylabel \"$opt_p\"\n";
+}
+
+if($opt_h) {
+	print $labels "set title \"Value over time of $opt_h\"\n";
+} else {
+	print $labels "set title \"Compiled average value\"\n"
 }
 
 open(my $data, "<", $opt_f)			#open input data file
