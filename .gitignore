@@ -1,2 +1,6 @@
 *~
 *.swp
+*.ps
+*.jpeg
+labstats.db*
+labstats.short
