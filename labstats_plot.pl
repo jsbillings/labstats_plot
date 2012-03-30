@@ -116,6 +116,9 @@ close($data);
 close($parsed);
 
 system "gnuplot -e 'load \"labstats_gnuplot\"'";
+unlink("labstats_tmp") or die "Couldn't remove 'labstats_tmp'";
+unlink("labstats_labels") or die "Couldn't remove 'labstats_labels'";
+
 
 exit(0);
 

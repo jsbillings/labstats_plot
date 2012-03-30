@@ -1,8 +1,8 @@
 load "labstats_labels"
-set terminal jpeg
-set output "graph.jpeg"
+set terminal postscript
+set output "graph.ps"
 set border
 set xdata time
 set timefmt "%Y%m%d%H%M%S"
-set format x "%a/%H"
-plot "labstats_tmp" using 1:2
+set format x "%m/%d"
+plot "labstats_tmp" using 1:2 with linespoints
