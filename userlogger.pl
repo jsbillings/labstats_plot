@@ -4,15 +4,31 @@
 #	Takes labstat record data from standard input
 #	Computes an average usetime of workstations in every lab
 #	Prints or plots this data
+#	Can also find average memory usage and average CPU percent per lab
 
 
 use strict;
 use warnings;
 
-#TODO: Plot the data, add file input option, add argument handling
+our $VERSION="1.0";
 
-#TODO: Daily memory, usage time, and cpu% per lab and plot
+use Getopt::Std;
 
+$Getopt::Std::STANDARD_HELP_VERSION = 1;
+
+our($opt_t, $opt_m, $opt_c, $opt_h, $opt_f);
+getopts('tmchf:') || die "????????";
+
+our $file = *STDIN;
+if ($opt_f) {
+	open(my $file, "<", $opt_f)
+		or die "cannot open $opt_f: $!";
+}
+
+open(my $parsed, ">", "userlogger_tmp")	#open temp gnuplot file
+	or die "cannot open temporary file; $!";
+
+#TODO: Plot the data
 
 my %host_minutes;		#time users spent working on the host
 my %lab_minutes;		#total use time of all computers in lab
@@ -36,8 +52,8 @@ my $users;
 my $lab;
 
 #Input a daily log file - for now
-while(<STDIN>) {
-	if(/^\s*\S+\s+\S+\s+(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)\s+(\S+)\s+(\S+)\s+\S+\s+(\S+).+(\S+)\s+\S+\s+\S+\s+(\S+)\s+\S+\s+(\S+)\s+\S+$/) {
+while(<$file>) {
+	if(/^\s*\S+\s+\S+\s+(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)\s+(\S+)\s+(\S+).+\s+(\S+)\s+\S+\s+\S+\s+(\S+)\s+\S+\s+\S+\s+(\S+)\s+\S+\s+(\S+)\s+\S+$/) {
 		$time = $1;
 		$host = $2;
 		$os = $3;
@@ -101,11 +117,33 @@ foreach $lab (sort keys %lab_minutes) {
 	}
 	if($lab_minutes{$lab} > 0) {
 		printf "%s: Total: %2.2f, Average: %2.2f, Systems Reporting: %i (Windows: %%%2.1f, Linux: %%%2.1f)\n", $lab, $total_usage, $average_usage, $lab_no_hosts{$lab}, $windows_usage, $linux_usage;
+		if($opt_t) {
+			print $parsed $lab;
+			print $parsed $average_usage;
+			print $parsed '\n';
+		}
 	}
 	if($lab_mem{$lab} > 0) {
 		printf "%s: Average Mem: %2.2f\n", $lab, $lab_mem{$lab};
+		if($opt_m) {
+			print $parsed $lab;
+			print $parsed $lab_mem{$lab};
+			print $parsed '\n';
+		}
 	}
 	if($lab_cpupercent{$lab} > 0) {
-		printf "%s: Total: %2.2f, Average Cpu%: %2.2f\n", $lab, $lab_cpupercent{$lab};
+		printf "%s: Average CpuPercent: %2.2f\n", $lab, $lab_cpupercent{$lab};
+		if($opt_c) {
+			print $parsed $lab;
+			print $parsed $lab_cpupercent{lab};
+			print $parsed '\n';
+		}
 	}
 }
+
+if($opt_m || $opt_t || $opt_c) {
+	system "gnuplot -e 'load \"userlogger_gnuplot\"'";
+	unlink("userlogger_tmp") or die "Couldn't remove 'userlogger_tmp'";
+}
+
+exit(0);

@@ -1,4 +1,4 @@
 set terminal postscript
-set output "users.ps"
+set output "graph.ps"
 set border
-plot "userlogger_tmp" using 1:2 with linespoints
+plot "userlogger_tmp"

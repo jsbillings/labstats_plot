@@ -1,0 +1,12 @@
+########################################
+#	Readme for userlogger script
+#######################################
+
+
+labstats_plot can plot data for one host, or average data from all hosts
+
+userlogger plots average data across 1 lab
+
+Maybe these can be combined into one script?
+
+TODO: finish plotting functions of userlogger script. So far, it will print the data it collects, but does not plot it. See labstats_plot for example on how to plot data with gnuplot (may not be the best way).
